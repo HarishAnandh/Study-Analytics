@@ -14,7 +14,7 @@ function Subjects() {
   
   const fetchSubjects = async () => {
     const response = await axios.get(
-      "http://127.0.0.1:8000/subjects"
+      "https://study-analytics.onrender.com/subjects"
     );
   
     setSubjects(response.data);
@@ -35,7 +35,7 @@ function Subjects() {
    
     try {
       await axios.post(
-        "http://127.0.0.1:8000/subjects",
+        "https://study-analytics.onrender.com/subjects",
         newSubject
       );
   
