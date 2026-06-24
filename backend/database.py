@@ -15,4 +15,9 @@ SessionLocal = sessionmaker(
     bind=engine
 )
 
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"sslmode": "require"}
+)
+
 Base = declarative_base()
