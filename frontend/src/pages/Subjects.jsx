@@ -1,3 +1,5 @@
+import axios from "axios";
+import { useEffect } from "react";
 import { useState } from "react";
 
 function Subjects() {
@@ -6,21 +8,47 @@ function Subjects() {
   const [proficiency, setProficiency] = useState("");
 
   const [subjects, setSubjects] = useState([]);
-
-  const handleSubmit = () => {
+  useEffect(() => {
+    fetchSubjects();
+  }, []);
+  
+  const fetchSubjects = async () => {
+    const response = await axios.get(
+      "http://127.0.0.1:8000/subjects"
+    );
+  
+    setSubjects(response.data);
+  };
+  const handleSubmit = async () => {
     if (!name) return;
-
+  
+    const priority =
+      Number(difficulty) *
+      (100 - Number(proficiency));
+  
     const newSubject = {
       name,
       difficulty,
-      proficiency
+      proficiency,
+      priority
     };
-
-    setSubjects([...subjects, newSubject]);
-
-    setName("");
-    setDifficulty("");
-    setProficiency("");
+   
+    try {
+      await axios.post(
+        "http://127.0.0.1:8000/subjects",
+        newSubject
+      );
+  
+      setSubjects([...subjects, newSubject]);
+  
+      setName("");
+      setDifficulty("");
+      setProficiency("");
+  
+      console.log("Saved to backend");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
