@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -10,20 +10,19 @@ app = FastAPI()
 Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+CORSMiddleware,
+allow_origins=["*"],
+allow_credentials=True,
+allow_methods=["*"],
+allow_headers=["*"],
 )
 
 @app.get("/")
 def home():
-    return {"message": "Study Analytics API Running"}
+     return {"message": "Study Analytics API Running"}
 
 @app.get("/subjects")
 def get_subjects():
-
     db: Session = SessionLocal()
 
     subjects = db.query(Subject).all()
@@ -46,7 +45,6 @@ def get_subjects():
 
 @app.post("/subjects")
 def add_subject(subject: dict):
-
     db: Session = SessionLocal()
 
     new_subject = Subject(
@@ -63,3 +61,26 @@ def add_subject(subject: dict):
     db.close()
 
     return {"message": "Subject Added"}
+
+@app.delete("/subjects/{subject_id}")
+def delete_subject(subject_id: int):
+    db: Session = SessionLocal()
+
+    subject = (
+        db.query(Subject)
+        .filter(Subject.id == subject_id)
+        .first()
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="Subject not found"
+        )
+
+    db.delete(subject)
+    db.commit()
+
+    db.close()
+
+    return {"message": "Subject deleted"}

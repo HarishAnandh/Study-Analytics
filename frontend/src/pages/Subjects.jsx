@@ -23,6 +23,32 @@ setSubjects(response.data);
 
 };
 
+const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this subject?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    console.log(
+      `https://study-analytics.onrender.com/subjects/${id}`
+    );
+
+    const response = await axios.delete(
+      `https://study-analytics.onrender.com/subjects/${id}`
+    );
+
+    console.log("DELETE SUCCESS:", response.data);
+
+    fetchSubjects();
+  } catch (error) {
+    console.error("DELETE ERROR:", error);
+  }
+};
+  
+  
+
 const handleSubmit = async () => {
 if (!name) return;
 
@@ -175,7 +201,7 @@ marginBottom: "30px",
   >
     {subjects.map((subject, index) => (
       <div
-        key={index}
+        key={subject.id}
         style={{
           background: "#1e293b",
           borderRadius: "15px",
@@ -185,18 +211,14 @@ marginBottom: "30px",
       >
         <h3>{subject.name}</h3>
 
-        <p>
-          Difficulty: {subject.difficulty}
-        </p>
+        <p>Difficulty: {subject.difficulty}</p>
 
-        <p>
-          Knowledge: {subject.proficiency}%
-        </p>
+        <p>Knowledge: {subject.proficiency}%</p>
 
         <p>
           Priority: {subject.priority}
         </p>
-
+        
         <div
           style={{
             background: "#334155",
@@ -213,6 +235,20 @@ marginBottom: "30px",
             }}
           />
         </div>
+        <button
+  onClick={() => handleDelete(subject.id)}
+  style={{
+    background: "#ef4444",
+    color: "white",
+    border: "none",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    marginTop: "10px"
+  }}
+>
+  Delete
+</button>
       </div>
     ))}
   </div>
