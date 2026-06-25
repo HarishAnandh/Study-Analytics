@@ -10,6 +10,7 @@ const [name, setName] = useState("");
 const [difficulty, setDifficulty] = useState("");
 const [proficiency, setProficiency] = useState("");
 const [subjects, setSubjects] = useState([]);
+const [searchTerm, setSearchTerm] = useState("");
 
 useEffect(() => {
 fetchSubjects();
@@ -120,6 +121,50 @@ const topSubject =
           : current
       )
     : null;
+
+const filteredSubjects = subjects.filter((subject) =>
+      subject.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
+
+    const highestPriority =
+    subjects.length > 0
+      ? subjects.reduce((prev, current) =>
+          prev.priority > current.priority
+            ? prev
+            : current
+        )
+      : null;
+  
+  const mostDifficult =
+    subjects.length > 0
+      ? subjects.reduce((prev, current) =>
+          prev.difficulty > current.difficulty
+            ? prev
+            : current
+        )
+      : null;
+  
+  const strongestSubject =
+    subjects.length > 0
+      ? subjects.reduce((prev, current) =>
+          prev.proficiency > current.proficiency
+            ? prev
+            : current
+        )
+      : null;
+  
+  const avgKnowledge =
+    subjects.length > 0
+      ? (
+          subjects.reduce(
+            (sum, s) =>
+              sum + Number(s.proficiency),
+            0
+          ) / subjects.length
+        ).toFixed(1)
+      : 0;
 
 return (
 <div
@@ -232,8 +277,19 @@ marginBottom: "30px",
   </div>
 
   <h2>Subjects</h2>
+
+  
   
   <SubjectChart subjects={subjects} />
+  <input
+  type="text"
+  placeholder="🔍 Search Subject..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="inputBox"
+/>
+<br/><br/>
+
   <div
     style={{
       display: "grid",
@@ -242,7 +298,8 @@ marginBottom: "30px",
       gap: "20px",
     }}
   >
-    {subjects.map((subject, index) => (
+    
+    {filteredSubjects.map((subject, index) => (
       <div
         key={subject.id}
         style={{
@@ -294,7 +351,8 @@ marginBottom: "30px",
 </button>
       </div>
     ))}
-
+</div>
+<br/><br/>
 {topSubject && (
   <div
     style={{
@@ -317,8 +375,57 @@ marginBottom: "30px",
       </h7>
 
   </div>
+
+  
 )}
-  </div>
+
+ <br/><br/>
+  <div
+  style={{
+    background:
+      "linear-gradient(135deg,#1e293b,#0f172a)",
+    padding: "25px",
+    borderRadius: "15px",
+    marginBottom: "25px",
+    border:
+      "1px solid rgba(255,255,255,0.1)",
+  }}
+>
+  <h2>📈 Study Insights</h2>
+
+  <p>
+    🔥 Highest Priority:
+    <strong>
+      {" "}
+      {highestPriority?.name}
+    </strong>
+  </p>
+
+  <p>
+    ⚡ Most Difficult:
+    <strong>
+      {" "}
+      {mostDifficult?.name}
+    </strong>
+  </p>
+
+  <p>
+    🧠 Strongest Subject:
+    <strong>
+      {" "}
+      {strongestSubject?.name}
+    </strong>
+  </p>
+
+  <p>
+    📚 Average Knowledge:
+    <strong>
+      {" "}
+      {avgKnowledge}%
+    </strong>
+  </p>
+</div>
+  
 </div>
 
 );
