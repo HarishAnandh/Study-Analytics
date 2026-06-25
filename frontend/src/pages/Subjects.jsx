@@ -12,9 +12,16 @@ const [difficulty, setDifficulty] = useState("");
 const [proficiency, setProficiency] = useState("");
 const [subjects, setSubjects] = useState([]);
 const [searchTerm, setSearchTerm] = useState("");
+const [user, setUser] = useState(null);
 
 useEffect(() => {
-fetchSubjects();
+  fetchSubjects();
+
+  supabase.auth.getUser().then(
+    ({ data }) => {
+      setUser(data.user);
+    }
+  );
 }, []);
 
 const handleLogout = async () => {
@@ -172,87 +179,127 @@ const filteredSubjects = subjects.filter((subject) =>
       
         doc.setFontSize(22);
         doc.text(
-          "Study Analytics - Smart Timetable",
+          "Study Analytics Timetable",
           20,
           20
         );
       
-        doc.setFontSize(12);
+        const [startHour, startMinute] =
+          startTime.split(":").map(Number);
       
-        const sortedSubjects = [...subjects].sort(
-          (a, b) => b.priority - a.priority
-        );
+        const [endHour, endMinute] =
+          endTime.split(":").map(Number);
       
-        let currentHour = 9;
-        let currentMinute = 0;
+        const totalMinutes =
+          (endHour * 60 + endMinute) -
+          (startHour * 60 + startMinute);
+      
+        const sortedSubjects =
+          [...subjects].sort(
+            (a, b) =>
+              b.priority - a.priority
+          );
+      
+        const totalPriority =
+          sortedSubjects.reduce(
+            (sum, s) =>
+              sum + Number(s.priority),
+            0
+          );
+      
+        let currentTime =
+          startHour * 60 +
+          startMinute;
       
         let y = 40;
       
-        sortedSubjects.forEach((subject) => {
+        sortedSubjects.forEach(
+          (subject) => {
       
-          let studyMinutes = 45;
+            const allocatedMinutes =
+              Math.max(
+                30,
+                Math.floor(
+                  (subject.priority /
+                    totalPriority) *
+                  totalMinutes
+                )
+              );
       
-          if (subject.priority >= 700)
-            studyMinutes = 120;
-          else if (subject.priority >= 500)
-            studyMinutes = 90;
-          else if (subject.priority >= 300)
-            studyMinutes = 60;
+            const startH =
+              Math.floor(
+                currentTime / 60
+              );
       
-          const startTime =
-            `${String(currentHour).padStart(2, "0")}:${String(currentMinute).padStart(2, "0")}`;
+            const startM =
+              currentTime % 60;
       
-          let endMinutes =
-            currentHour * 60 +
-            currentMinute +
-            studyMinutes;
+            const endTimeMinutes =
+              currentTime +
+              allocatedMinutes;
       
-          const endHour =
-            Math.floor(endMinutes / 60);
+            const endH =
+              Math.floor(
+                endTimeMinutes / 60
+              );
       
-          const endMinute =
-            endMinutes % 60;
+            const endM =
+              endTimeMinutes % 60;
       
-          const endTime =
-            `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
+            const startLabel =
+              `${String(startH).padStart(2,"0")}:${String(startM).padStart(2,"0")}`;
       
-          doc.text(
-            `${startTime} - ${endTime}`,
-            20,
-            y
-          );
+            const endLabel =
+              `${String(endH).padStart(2,"0")}:${String(endM).padStart(2,"0")}`;
       
-          doc.text(
-            `${subject.name}`,
-            70,
-            y
-          );
+            doc.text(
+              `${startLabel} - ${endLabel}`,
+              20,
+              y
+            );
       
-          doc.text(
-            `Priority: ${subject.priority}`,
-            130,
-            y
-          );
+            doc.text(
+              subject.name,
+              70,
+              y
+            );
       
-          currentHour = endHour;
-          currentMinute = endMinute + 15;
+            y += 12;
       
-          if (currentMinute >= 60) {
-            currentHour += 1;
-            currentMinute -= 60;
+            currentTime =
+              endTimeMinutes;
+      
+            if (y > 260) {
+              doc.addPage();
+              y = 20;
+            }
           }
+        );
       
-          y += 15;
-      
-          if (y > 260) {
-            doc.addPage();
-            y = 20;
-          }
-        });
-      
-        doc.save("StudyTimetable.pdf");
+        doc.save(
+          "StudyTimetable.pdf"
+        );
       };
 
+const [startTime, setStartTime] =
+  useState("09:00");
+
+const [endTime, setEndTime] =
+  useState("18:00");
+  const totalSubjects =
+  subjects.length;
+
+
+const highestPrioritySubject =
+  subjects.length > 0
+    ? subjects.reduce(
+        (prev, curr) =>
+          prev.priority >
+          curr.priority
+            ? prev
+            : curr
+      )
+    : null;
 return (
 <div
 style={{
@@ -263,30 +310,93 @@ padding: "30px",
 fontFamily: "Arial",
 }}
 >
+  <h1
+  style={{
+    textAlign: "center",
+    marginBottom: "30px",
+    marginLeft: "20%",
+    color: "Aqua",
+    }}>
+
+ 🦕 Snippa  
+
+
+<button
+  onClick={handleLogout}
+  style={{
+    background: "#1e293b",
+    color: "white",
+    border: "none",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    marginLeft: "10%",
+  }}
+>
+  Logout
+</button>
+</h1>
+
 <h1
 style={{
 textAlign: "center",
 marginBottom: "30px",
 }}
 >
-📚 Study Analytics Dashboard      <button
-  onClick={handleLogout}
-  style={{
-    background: "#ef4444",
-    color: "white",
-    border: "none",
-    padding: "10px 16px",
-    borderRadius: "8px",
-    cursor: "pointer",
-  }}
->
-  Logout
-</button> </h1>
+ 
+ Study Analytics Dashboard    </h1>
 
-<h2 style={{
+<p style={{
 textAlign: "center",
 marginBottom: "30px",
-}}>By Harish Anandh</h2>
+color: "gray"
+}}>By Harish Anandh</p>
+
+<div
+  style={{
+    background:
+      "linear-gradient(135deg,#1e293b,#0f172a)",
+    padding: "20px",
+    borderRadius: "15px",
+    marginBottom: "25px",
+    border:
+      "1px solid rgba(255,255,255,0.1)",
+  }}
+>
+  <h2>👤 User Profile</h2>
+
+  <p>
+    Email:
+    <strong>
+      {" "}
+      {user?.email}
+    </strong>
+  </p>
+
+  <p>
+    Subjects Added:
+    <strong>
+      {" "}
+      {totalSubjects}
+    </strong>
+  </p>
+
+  <p>
+    Average Knowledge:
+    <strong>
+      {" "}
+      {avgKnowledge}%
+    </strong>
+  </p>
+
+  <p>
+    Highest Priority:
+    <strong>
+      {" "}
+      {highestPrioritySubject?.name || "N/A"}
+    </strong>
+  </p>
+</div>
 
   <div
     style={{
@@ -363,6 +473,42 @@ marginBottom: "30px",
     </button>
   </div>
 
+  <div
+  style={{
+    display: "flex",
+    gap: "15px",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+    marginLeft: "45%",
+  }}
+>
+  <div>
+    <label>Start Time</label>
+    <br />
+    <input
+      type="time"
+      value={startTime}
+      onChange={(e) =>
+        setStartTime(e.target.value)
+      }
+      className="inputBox"
+    />
+  </div>
+
+  <div>
+    <label>End Time</label>
+    <br />
+    <input
+      type="time"
+      value={endTime}
+      onChange={(e) =>
+        setEndTime(e.target.value)
+      }
+      className="inputBox"
+    />
+  </div>
+</div>
+
   <button
   onClick={exportPDF}
   style={{
@@ -375,6 +521,7 @@ marginBottom: "30px",
     cursor: "pointer",
     fontWeight: "bold",
     marginBottom: "20px",
+    marginLeft: "46%",
   }}
 >
   📅 Generate Study Timetable
