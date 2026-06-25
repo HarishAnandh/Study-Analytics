@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { FaBook, FaChartLine, FaBrain } from "react-icons/fa";
 import SubjectChart from "../components/SubjectChart";
 import { color } from "chart.js/helpers";
+import jsPDF from "jspdf";
 
 function Subjects() {
 const [name, setName] = useState("");
@@ -166,6 +167,92 @@ const filteredSubjects = subjects.filter((subject) =>
         ).toFixed(1)
       : 0;
 
+      const exportPDF = () => {
+        const doc = new jsPDF();
+      
+        doc.setFontSize(22);
+        doc.text(
+          "Study Analytics - Smart Timetable",
+          20,
+          20
+        );
+      
+        doc.setFontSize(12);
+      
+        const sortedSubjects = [...subjects].sort(
+          (a, b) => b.priority - a.priority
+        );
+      
+        let currentHour = 9;
+        let currentMinute = 0;
+      
+        let y = 40;
+      
+        sortedSubjects.forEach((subject) => {
+      
+          let studyMinutes = 45;
+      
+          if (subject.priority >= 700)
+            studyMinutes = 120;
+          else if (subject.priority >= 500)
+            studyMinutes = 90;
+          else if (subject.priority >= 300)
+            studyMinutes = 60;
+      
+          const startTime =
+            `${String(currentHour).padStart(2, "0")}:${String(currentMinute).padStart(2, "0")}`;
+      
+          let endMinutes =
+            currentHour * 60 +
+            currentMinute +
+            studyMinutes;
+      
+          const endHour =
+            Math.floor(endMinutes / 60);
+      
+          const endMinute =
+            endMinutes % 60;
+      
+          const endTime =
+            `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
+      
+          doc.text(
+            `${startTime} - ${endTime}`,
+            20,
+            y
+          );
+      
+          doc.text(
+            `${subject.name}`,
+            70,
+            y
+          );
+      
+          doc.text(
+            `Priority: ${subject.priority}`,
+            130,
+            y
+          );
+      
+          currentHour = endHour;
+          currentMinute = endMinute + 15;
+      
+          if (currentMinute >= 60) {
+            currentHour += 1;
+            currentMinute -= 60;
+          }
+      
+          y += 15;
+      
+          if (y > 260) {
+            doc.addPage();
+            y = 20;
+          }
+        });
+      
+        doc.save("StudyTimetable.pdf");
+      };
+
 return (
 <div
 style={{
@@ -275,6 +362,23 @@ marginBottom: "30px",
       Save Subject
     </button>
   </div>
+
+  <button
+  onClick={exportPDF}
+  style={{
+    background:
+      "linear-gradient(135deg,#22c55e,#16a34a)",
+    color: "white",
+    border: "none",
+    padding: "12px 20px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    marginBottom: "20px",
+  }}
+>
+  📅 Generate Study Timetable
+</button>
 
   <h2>Subjects</h2>
 
