@@ -1,6 +1,9 @@
+import supabase from "../supabase";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaBook, FaChartLine, FaBrain } from "react-icons/fa";
+import SubjectChart from "../components/SubjectChart";
+import { color } from "chart.js/helpers";
 
 function Subjects() {
 const [name, setName] = useState("");
@@ -12,13 +15,21 @@ useEffect(() => {
 fetchSubjects();
 }, []);
 
+const handleLogout = async () => {
+  await supabase.auth.signOut();
+};
+
 const fetchSubjects = async () => {
   try {
     const response = await axios.get(
       "https://study-analytics.onrender.com/subjects"
     );
 
-    setSubjects(response.data);
+    const sortedSubjects = response.data.sort(
+      (a, b) => b.priority - a.priority
+    );
+    
+    setSubjects(sortedSubjects);
   } catch (error) {
     console.error(error);
   }
@@ -55,9 +66,14 @@ const handleSubmit = async () => {
 if (!name) return;
 
 
-const priority =
+const calculatedPriority =
   Number(difficulty) *
   (100 - Number(proficiency));
+
+const priority = Math.max(
+  calculatedPriority,
+  10
+);
 
 const newSubject = {
   name,
@@ -96,6 +112,14 @@ subjects.reduce(
 
 console.log(subjects);
 
+const topSubject =
+  subjects.length > 0
+    ? subjects.reduce((prev, current) =>
+        prev.priority > current.priority
+          ? prev
+          : current
+      )
+    : null;
 
 return (
 <div
@@ -113,7 +137,20 @@ textAlign: "center",
 marginBottom: "30px",
 }}
 >
-📚 Study Analytics Dashboard </h1>
+📚 Study Analytics Dashboard      <button
+  onClick={handleLogout}
+  style={{
+    background: "#ef4444",
+    color: "white",
+    border: "none",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    cursor: "pointer",
+  }}
+>
+  Logout
+</button> </h1>
+
 <h2 style={{
 textAlign: "center",
 marginBottom: "30px",
@@ -195,7 +232,8 @@ marginBottom: "30px",
   </div>
 
   <h2>Subjects</h2>
-
+  
+  <SubjectChart subjects={subjects} />
   <div
     style={{
       display: "grid",
@@ -256,6 +294,30 @@ marginBottom: "30px",
 </button>
       </div>
     ))}
+
+{topSubject && (
+  <div
+    style={{
+      background: "#1e293b",
+      color: "white",
+      padding: "20px",
+      borderRadius: "15px",
+      border: "2px solid #38bdf8",
+      marginBottom: "25px",
+      fontWeight: "bold",
+    }}
+  >
+    <h3> Today's Focus:</h3>
+
+    <h2>❄ {topSubject.name}  </h2>
+
+    <h7>
+      It Has Higher Priority -
+      {topSubject.priority}
+      </h7>
+
+  </div>
+)}
   </div>
 </div>
 
