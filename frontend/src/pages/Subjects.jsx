@@ -13,14 +13,15 @@ fetchSubjects();
 }, []);
 
 const fetchSubjects = async () => {
-const response = await axios.get(
-"https://study-analytics.onrender.com/subjects"
-);
+  try {
+    const response = await axios.get(
+      "https://study-analytics.onrender.com/subjects"
+    );
 
-
-setSubjects(response.data);
-
-
+    setSubjects(response.data);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const handleDelete = async (id) => {
@@ -31,17 +32,18 @@ const handleDelete = async (id) => {
   if (!confirmDelete) return;
 
   try {
-    console.log(
-      `https://study-analytics.onrender.com/subjects/${id}`
-    );
-
     const response = await axios.delete(
       `https://study-analytics.onrender.com/subjects/${id}`
     );
-
+  
     console.log("DELETE SUCCESS:", response.data);
-
-    fetchSubjects();
+  
+    setSubjects(
+      subjects.filter(
+        (subject) => subject.id !== id
+      )
+    );
+  
   } catch (error) {
     console.error("DELETE ERROR:", error);
   }
@@ -91,6 +93,9 @@ subjects.reduce(
 ) / subjects.length
 ).toFixed(1)
 : 0;
+
+console.log(subjects);
+
 
 return (
 <div
