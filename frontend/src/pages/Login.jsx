@@ -72,7 +72,7 @@ textAlign: "center",
 >
 <h1
 style={{
-color: "cyan",
+color: "#38bdf8",
 marginBottom: "10px",
 }}
 >
@@ -182,12 +182,12 @@ Snippa </h1>
 
     <p
       style={{
-        color: "cyan",
+        color: "#94a3b8",
         marginTop: "20px",
         fontSize: "14px",
       }}
     >
-      A Hector Product
+      A <strong>HECTOR</strong> Product
     </p>
   </div>
 </div>
