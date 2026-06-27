@@ -5,6 +5,7 @@ import { FaBook, FaChartLine, FaBrain } from "react-icons/fa";
 import SubjectChart from "../components/SubjectChart";
 import { color } from "chart.js/helpers";
 import jsPDF from "jspdf";
+import Navbar from "../components/Navbar";
 
 function Subjects() {
 const [name, setName] = useState("");
@@ -300,8 +301,13 @@ const highestPrioritySubject =
             : curr
       )
     : null;
+
+
 return (
-<div
+      <>
+        <Navbar />
+    
+        <div
 style={{
 minHeight: "100vh",
 background: "#0f172a",
@@ -310,32 +316,18 @@ padding: "30px",
 fontFamily: "Arial",
 }}
 >
-  <h1
+  <h2
   style={{
     textAlign: "center",
     marginBottom: "30px",
-    marginLeft: "20%",
-    color: "Aqua",
+    color: "#38bdf8",
     }}>
 
- 🦕 Snippa  
+ Hi {user?.user_metadata?.username}!
 
 
-<button
-  onClick={handleLogout}
-  style={{
-    background: "#1e293b",
-    color: "white",
-    border: "none",
-    padding: "10px 16px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    marginLeft: "10%",
-  }}
->
-  Logout
-</button>
-</h1>
+
+</h2>
 
 <h1
 style={{
@@ -352,6 +344,7 @@ marginBottom: "30px",
 color: "gray"
 }}>By Harish Anandh</p>
 
+
 <div
   style={{
     background:
@@ -363,7 +356,9 @@ color: "gray"
       "1px solid rgba(255,255,255,0.1)",
   }}
 >
-  <h2>👤 User Profile</h2>
+<h2>
+  👤 {user?.user_metadata?.username}
+</h2>
 
   <p>
     Email:
@@ -678,7 +673,7 @@ color: "gray"
 </div>
   
 </div>
-
+  </>
 );
 }
 

@@ -1,35 +1,34 @@
-import { useEffect, useState } from "react";
-import supabase from "./supabase";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+
 import Login from "./pages/Login";
 import Subjects from "./pages/Subjects";
+import Profile from "./pages/Profile";
 
 function App() {
-const [session, setSession] = useState(null);
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={<Login />}
+        />
 
-useEffect(() => {
-supabase.auth.getSession().then(({ data }) => {
-setSession(data.session);
-});
+        <Route
+          path="/dashboard"
+          element={<Subjects />}
+        />
 
-
-const {
-  data: { subscription },
-} = supabase.auth.onAuthStateChange(
-  (_event, session) => {
-    setSession(session);
-  }
-);
-
-return () => subscription.unsubscribe();
-
-
-}, []);
-
-if (!session) {
-return <Login />;
-}
-
-return <Subjects />;
+        <Route
+          path="/profile"
+          element={<Profile />}
+        />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

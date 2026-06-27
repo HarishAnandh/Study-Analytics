@@ -4,6 +4,7 @@ import supabase from "../supabase";
 function Login() {
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
+const [username, setUsername] = useState("");
 
 const handleLogin = async () => {
 const { error } =
@@ -16,7 +17,7 @@ password,
 if (error) {
   alert(error.message);
 } else {
-  window.location.reload();
+  window.location.href = "/dashboard";
 }
 
 
@@ -25,8 +26,13 @@ if (error) {
 const handleSignup = async () => {
 const { error } =
 await supabase.auth.signUp({
-email,
-password,
+  email,
+  password,
+  options: {
+    data: {
+      username: username,
+    },
+  },
 });
 
 
@@ -81,6 +87,25 @@ Snippa </h1>
     >
       Made for student. Made by student.
     </p>
+
+    <input
+  type="text"
+  placeholder="Username"
+  value={username}
+  onChange={(e) =>
+    setUsername(e.target.value)
+  }
+  style={{
+    width: "100%",
+    padding: "14px",
+    marginBottom: "15px",
+    borderRadius: "10px",
+    border: "none",
+    background: "#334155",
+    color: "white",
+    boxSizing: "border-box",
+  }}
+/>
 
     <input
       type="email"
