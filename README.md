@@ -1,101 +1,271 @@
-# 📚 Study Analytics Dashboard
+# 📚 Snippa – Study Analytics & Smart Timetable Generator
 
-A full-stack web application that helps students analyze and prioritize subjects based on difficulty and current proficiency levels.
+## Overview
 
-## 🚀 Features
+Snippa is a full-stack web application designed to help students manage their studies more effectively. It allows users to track subjects, analyze study priorities, visualize learning progress, generate study timetables, and manage their accounts through secure authentication.
 
-* Add and manage study subjects
-* Calculate subject priority automatically
-* Store data in Supabase PostgreSQL
-* FastAPI backend with REST APIs
-* React frontend dashboard
-* Modern analytics-style UI
-* Cloud deployment using Render
-* GitHub version control
+The application combines a modern React frontend with a FastAPI backend and PostgreSQL database hosted on Supabase.
 
 ---
 
-## 🏗️ Tech Stack
+# ✨ Features
 
-### Frontend
+## User Authentication
 
-* React
-* Vite
-* Axios
-* React Icons
+* User Registration
+* User Login
+* Secure Password Authentication
+* User Profile Management
+* Logout Functionality
+* Supabase Authentication Integration
 
-### Backend
+## Subject Management
 
-* FastAPI
-* SQLAlchemy
-* Psycopg2
+* Add Subjects
+* View Subjects
+* Delete Subjects
+* Difficulty Tracking
+* Knowledge/Proficiency Tracking
+* Automatic Priority Calculation
 
-### Database
+## Analytics Dashboard
 
-* Supabase PostgreSQL
+* Total Subjects
+* Average Difficulty
+* Average Knowledge
+* Highest Priority Subject
+* Interactive Charts
+* Progress Visualization
 
-### Deployment
+## Timetable Generator
 
-* Render (Backend)
-* Vercel (Frontend)
+* Custom Start Time
+* Custom End Time
+* Priority-Based Scheduling
+* Automated Time Distribution
+* PDF Timetable Export
 
----
+## User Profile
 
-## 📂 Project Structure
-
-StudyAnalytics/
-
-├── backend/
-
-│   ├── main.py
-
-│   ├── database.py
-
-│   ├── models.py
-
-│   ├── requirements.txt
-
-│   └── .env
-
-│
-
-├── frontend/
-
-│   ├── src/
-
-│   │   ├── pages/
-
-│   │   │   └── Subjects.jsx
-
-│   │   ├── App.jsx
-
-│   │   ├── main.jsx
-
-│   │   └── index.css
-
-│   ├── package.json
-
-│   └── vite.config.js
-
-│
-
-└── README.md
+* Username Display
+* Account Information
+* Logout Access
 
 ---
 
-## ⚙️ Installation
+# 🏗️ System Architecture
 
-### Clone Repository
-
-```bash
-git clone https://github.com/HarishAnandh/Study-Analytics.git
-
-cd Study-Analytics
+```text
+Frontend (React + Vite)
+        │
+        ▼
+ FastAPI Backend
+        │
+        ▼
+ PostgreSQL Database
+   (Supabase)
 ```
 
 ---
 
-## Backend Setup
+# 🛠 Technology Stack
+
+## Frontend
+
+* React.js
+* Vite
+* Axios
+* React Router DOM
+* React Icons
+* Recharts
+* jsPDF
+
+## Backend
+
+* FastAPI
+* SQLAlchemy
+* Uvicorn
+
+## Database
+
+* PostgreSQL
+* Supabase
+
+## Authentication
+
+* Supabase Auth
+
+## Deployment
+
+Frontend:
+
+* Vercel
+
+Backend:
+
+* Render
+
+---
+
+# 📂 Project Structure
+
+```text
+StudyAnalytics
+│
+├── frontend
+│   │
+│   ├── public
+│   │
+│   ├── src
+│   │   │
+│   │   ├── assets
+│   │   │   ├── hero.png
+│   │   │   ├── react.svg
+│   │   │   └── vite.svg
+│   │   │
+│   │   ├── components
+│   │   │   ├── Navbar.jsx
+│   │   │   └── SubjectChart.jsx
+│   │   │
+│   │   ├── pages
+│   │   │   ├── Login.jsx
+│   │   │   ├── Subjects.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   └── Profile.jsx
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   ├── supabase.js
+│   │   ├── App.css
+│   │   └── index.css
+│   │
+│   ├── package.json
+│   ├── vite.config.js
+│   └── vercel.json
+│
+└── backend
+    │
+    ├── main.py
+    ├── database.py
+    ├── models.py
+    ├── requirements.txt
+    └── .env
+```
+
+---
+
+# 🚀 Installation Guide
+
+## Prerequisites
+
+Install the following:
+
+### Node.js
+
+Download:
+
+https://nodejs.org
+
+Verify installation:
+
+```bash
+node -v
+npm -v
+```
+
+### Python
+
+Download:
+
+https://python.org
+
+Verify:
+
+```bash
+python --version
+```
+
+### Git
+
+Download:
+
+https://git-scm.com
+
+Verify:
+
+```bash
+git --version
+```
+
+---
+
+# 📥 Clone Repository
+
+```bash
+git clone https://github.com/<your-username>/StudyAnalytics.git
+```
+
+```bash
+cd StudyAnalytics
+```
+
+---
+
+# Frontend Setup
+
+Navigate to frontend:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Install additional packages:
+
+```bash
+npm install axios
+```
+
+```bash
+npm install react-icons
+```
+
+```bash
+npm install react-router-dom
+```
+
+```bash
+npm install jspdf
+```
+
+```bash
+npm install recharts
+```
+
+```bash
+npm install @supabase/supabase-js
+```
+
+Run frontend:
+
+```bash
+npm run dev
+```
+
+Application will start at:
+
+```text
+http://localhost:5173
+```
+
+---
+
+# Backend Setup
 
 Navigate to backend:
 
@@ -105,61 +275,63 @@ cd backend
 
 Create virtual environment:
 
+### Windows
+
 ```bash
 python -m venv venv
 ```
-
-Activate virtual environment:
-
-### Mac/Linux
-
-```bash
-source venv/bin/activate
-```
-
-### Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
+### Mac/Linux
+
+```bash
+python3 -m venv venv
+```
+
+```bash
+source venv/bin/activate
+```
+
 Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install fastapi
 ```
 
----
-
-## Environment Variables
-
-Create a `.env` file:
-
-```env
-DATABASE_URL=postgresql://postgres:PASSWORD@HOST:5432/postgres
+```bash
+pip install uvicorn
 ```
 
-Example:
-
-```env
-DATABASE_URL=postgresql://postgres:M%40password@db.xxxxx.supabase.co:5432/postgres
+```bash
+pip install sqlalchemy
 ```
 
----
+```bash
+pip install psycopg2-binary
+```
 
-## Run Backend
+Generate requirements file:
+
+```bash
+pip freeze > requirements.txt
+```
+
+Run backend:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Backend runs on:
+Backend URL:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-Swagger API Docs:
+Swagger Documentation:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -167,44 +339,143 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## Frontend Setup
+# 🗄 Database Setup (Supabase)
 
-Navigate to frontend:
+## Create Project
 
-```bash
-cd frontend
-```
+Visit:
 
-Install packages:
+https://supabase.com
 
-```bash
-npm install
-```
+Create a new project.
 
-Install additional dependencies:
+---
 
-```bash
-npm install axios
-npm install react-icons
-```
+## Create Database Table
 
-Run development server:
-
-```bash
-npm run dev
-```
-
-Frontend runs on:
-
-```text
-http://localhost:5173
+```sql
+CREATE TABLE subjects (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    difficulty INTEGER,
+    proficiency INTEGER,
+    priority INTEGER
+);
 ```
 
 ---
 
-## API Endpoints
+## Get Database URL
 
-### Get All Subjects
+Supabase Dashboard:
+
+Settings → Database
+
+Copy:
+
+```text
+Connection String
+```
+
+Example:
+
+```text
+postgresql://postgres:password@host:5432/postgres
+```
+
+---
+
+## Configure Backend
+
+Create:
+
+```text
+backend/.env
+```
+
+```env
+DATABASE_URL=your_database_url
+```
+
+---
+
+# 🔐 Authentication Setup
+
+## Create Supabase Auth Project
+
+Dashboard:
+
+Authentication → Providers
+
+Enable:
+
+```text
+Email Provider
+```
+
+---
+
+## Get Credentials
+
+Dashboard:
+
+Settings → API
+
+Copy:
+
+```text
+Project URL
+Anon Key
+```
+
+---
+
+## Configure Frontend
+
+File:
+
+```text
+src/supabase.js
+```
+
+```javascript
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl =
+  "YOUR_PROJECT_URL";
+
+const supabaseKey =
+  "YOUR_ANON_KEY";
+
+const supabase = createClient(
+  supabaseUrl,
+  supabaseKey
+);
+
+export default supabase;
+```
+
+---
+
+# 📡 API Endpoints
+
+## Home
+
+```http
+GET /
+```
+
+Response:
+
+```json
+{
+  "message": "Study Analytics API Running"
+}
+```
+
+---
+
+## Get Subjects
 
 ```http
 GET /subjects
@@ -226,7 +497,7 @@ Response:
 
 ---
 
-### Add Subject
+## Add Subject
 
 ```http
 POST /subjects
@@ -245,78 +516,106 @@ Request:
 
 ---
 
-## Priority Formula
+## Delete Subject
 
-Priority is calculated as:
+```http
+DELETE /subjects/{id}
+```
+
+Example:
+
+```http
+DELETE /subjects/5
+```
+
+---
+
+# 🧮 Priority Calculation
+
+Formula:
 
 ```text
-Priority = Difficulty × (100 - Proficiency)
+Priority =
+Difficulty × (100 − Proficiency)
 ```
 
 Example:
 
 ```text
 Difficulty = 8
-Proficiency = 40
 
-Priority = 8 × (100 - 40)
+Knowledge = 40%
+
+Priority =
+8 × (100 - 40)
 
 Priority = 480
 ```
 
-Higher priority subjects require more attention.
+Higher value indicates greater study importance.
 
 ---
 
-## Git Commands Used
+# 📄 Timetable Generation Logic
 
-### Initialize Repository
+The timetable generator:
+
+1. Takes Start Time
+2. Takes End Time
+3. Calculates Available Hours
+4. Sorts Subjects by Priority
+5. Allocates More Time to High-Priority Subjects
+6. Generates Study Schedule
+7. Exports Schedule as PDF
+
+---
+
+# ☁ Deployment
+
+# Frontend (Vercel)
+
+Install:
 
 ```bash
-git init
+npm install -g vercel
 ```
 
-### Check Status
+Deploy:
 
 ```bash
-git status
-```
-
-### Add Files
-
-```bash
-git add .
-```
-
-### Commit Changes
-
-```bash
-git commit -m "Commit Message"
-```
-
-### View Commit History
-
-```bash
-git log --oneline
-```
-
-### Push Changes
-
-```bash
-git push origin main
-```
-
-### Pull Latest Changes
-
-```bash
-git pull origin main
+vercel
 ```
 
 ---
 
-## Deployment
+## Important
 
-### Backend Deployment (Render)
+Create:
+
+```text
+frontend/vercel.json
+```
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+This prevents React Router 404 errors.
+
+---
+
+# Backend (Render)
+
+Create:
+
+New Web Service
 
 Build Command:
 
@@ -330,53 +629,64 @@ Start Command:
 uvicorn main:app --host 0.0.0.0 --port 10000
 ```
 
-Environment Variable:
+Add Environment Variable:
 
-```env
-DATABASE_URL=<SUPABASE_CONNECTION_STRING>
+```text
+DATABASE_URL
 ```
+
+Deploy.
 
 ---
 
-### Frontend Deployment (Vercel)
+# 🧪 Testing
 
-Build Command:
+Backend:
 
 ```bash
-npm run build
+python -m py_compile main.py
 ```
 
-Output Directory:
-
-```text
-dist
+```bash
+uvicorn main:app --reload
 ```
 
-Root Directory:
+Frontend:
 
-```text
-frontend
+```bash
+npm run dev
 ```
 
 ---
 
-## Future Enhancements
+# Future Enhancements
 
-* Subject progress tracking
-* Study session timer
-* Analytics charts
-* Weekly study reports
-* AI-based study recommendations
-* Dark/Light mode switch
-* Authentication system
+* AI Study Recommendations
+* Pomodoro Timer
+* Attendance Tracker
+* Exam Countdown
+* Subject Editing
+* Study Streaks
+* Cloud Notes
+* Mobile Application
+* Dark/Light Themes
+* Weekly Planner
+* Calendar Integration
 
 ---
 
-## Author
+# 👨‍💻 Author
 
 **Harish Anandh**
 
-Anna University – Information Technology
+Information Technology Department
 
-Built using React, FastAPI, SQLAlchemy, Supabase, and Render.
+Anna University
 
+Built for students, by a student.
+
+---
+
+# License
+
+This project is licensed under the MIT License.
