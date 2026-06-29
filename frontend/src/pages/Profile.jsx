@@ -1,80 +1,94 @@
 import { useEffect, useState } from "react";
 import supabase from "../supabase";
 import Navbar from "../components/Navbar";
+import "../theme.css";
 
 function Profile() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(
-      ({ data }) => {
-        setUser(data.user);
-      }
-    );
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
   }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-
     window.location.href = "/";
   };
 
-
+  const initials = (user?.user_metadata?.username || "U").slice(0, 2).toUpperCase();
 
   return (
-  <>
-    <Navbar />
+    <>
+      <Navbar />
 
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#0f172a",
-        color: "white",
-        padding: "30px",
-      }}
-    >
-      <h1>👤 User Profile</h1>
+      <div className="page">
+        <div className="container" style={{ maxWidth: "640px" }}>
+          <p className="eyebrow">Account</p>
+          <h1 style={{ fontSize: "34px", marginTop: "6px", marginBottom: "24px" }}>
+            👤 Your profile
+          </h1>
 
-      <div
-        style={{
-          background: "#1e293b",
-          padding: "25px",
-          borderRadius: "15px",
-          maxWidth: "600px",
-          margin: "auto",
-        }}
-      >
-        <h2>Account Details</h2>
+          <div className="card card-pad">
+            <div className="flex-row gap-16" style={{ marginBottom: "24px" }}>
+              <div
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "16px",
+                  background: "var(--violet)",
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: "var(--font-display)",
+                  fontSize: "22px",
+                  fontWeight: 700,
+                  border: "2px solid var(--ink)",
+                  flexShrink: 0,
+                }}
+              >
+                {initials}
+              </div>
+              <div>
+                <h2 style={{ fontSize: "22px" }}>
+                  {user?.user_metadata?.username || "User"}
+                </h2>
+                <p className="muted" style={{ margin: "4px 0 0", fontSize: "14px" }}>
+                  {user?.email}
+                </p>
+              </div>
+            </div>
 
-        <p>
-          <strong>Username:</strong>{" "}
-          {user?.user_metadata?.username ||
- "User"}
-        </p>
+            <div style={{ borderTop: "2px solid var(--line)", paddingTop: "18px" }}>
+              <div style={{ marginBottom: "14px" }}>
+                <p className="field-label">Username</p>
+                <p style={{ margin: 0, fontSize: "15px" }}>
+                  {user?.user_metadata?.username || "User"}
+                </p>
+              </div>
 
-        <p>
-          <strong>User ID:</strong>{" "}
-          {user?.id}
-        </p>
+              <div>
+                <p className="field-label">User ID</p>
+                <p className="mono" style={{ margin: 0, fontSize: "13px", color: "var(--ink-soft)", wordBreak: "break-all" }}>
+                  {user?.id}
+                </p>
+              </div>
+            </div>
 
-        <button
-          onClick={handleLogout}
-          style={{
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-            padding: "12px 20px",
-            borderRadius: "10px",
-            cursor: "pointer",
-            marginTop: "20px",
-          }}
-        >
-          Logout
-        </button>
+            <button
+              onClick={handleLogout}
+              className="btn btn-danger"
+              style={{ marginTop: "24px" }}
+            >
+              Log out
+            </button>
+          </div>
+        </div>
       </div>
-      </div>
-  </>
-);
+    </>
+  );
 }
 
 export default Profile;

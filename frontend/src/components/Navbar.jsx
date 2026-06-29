@@ -1,72 +1,39 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import supabase from "../supabase";
-
+import "../theme.css";
 
 function Navbar() {
+  const location = useLocation();
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.replace("/");
   };
 
   return (
-    <div
-      style={{
-        background: "#1e293b",
-        padding: "15px 25px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        borderBottom:
-          "1px solid rgba(255,255,255,0.1)",
-      }}
-    >
-      <h2
-        style={{
-          color: "#38bdf8",
-          margin: 0,
-        }}
-      >
-        🦕 Snippa
-      </h2>
+    <div className="navbar">
+      <div className="flex-row gap-8">
+        <span style={{ fontSize: "24px" }}>📚</span>
+        <h2 style={{ color: "var(--ink)", fontSize: "20px" }}>Snippa</h2>
+      </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "15px",
-        }}
-      >
+      <div className="nav-links">
         <Link
           to="/dashboard"
-          style={{
-            color: "white",
-            textDecoration: "none",
-          }}
+          className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
         >
           📊 Dashboard
         </Link>
 
         <Link
           to="/profile"
-          style={{
-            color: "white",
-            textDecoration: "none",
-          }}
+          className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}
         >
           👤 Profile
         </Link>
 
-        <button
-          onClick={handleLogout}
-          style={{
-            background: "#38bdf8",
-            color: "black",
-            border: "none",
-            padding: "8px 14px",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
-           Logout
+        <button onClick={handleLogout} className="btn btn-coral btn-sm">
+          Logout
         </button>
       </div>
     </div>
