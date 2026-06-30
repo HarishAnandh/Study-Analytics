@@ -154,12 +154,34 @@ function Subjects() {
 
   const exportPDF = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const marginX = 18;
 
-    doc.setFontSize(22);
-    doc.text("Study Analytics Timetable", 20, 20);
+    // Tier colors as RGB (matches the on-screen tier system)
+    const TIER_RGB = {
+      Critical: [255, 90, 95],   // coral
+      High: [255, 184, 0],       // sun
+      Medium: [108, 92, 231],    // violet
+      Low: [0, 200, 150],        // mint
+    };
+    const INK = [32, 32, 29];
+    const PAPER = [255, 246, 233];
+    const BREAK_GREY = [180, 175, 165];
+
+    const getTierName = (priority, maxP) => {
+      if (maxP <= 0) return "Low";
+      const ratio = priority / maxP;
+      if (ratio > 0.75) return "Critical";
+      if (ratio > 0.5) return "High";
+      if (ratio > 0.25) return "Medium";
+      return "Low";
+    };
+
+    const work = Math.max(1, Number(workMinutes) || 25);
+    const rest = Math.max(0, Number(breakMinutes) || 5);
 
     const [startHour, startMinute] = startTime.split(":").map(Number);
-
     const [endHour, endMinute] = endTime.split(":").map(Number);
 
     const totalMinutes =
@@ -174,47 +196,212 @@ function Subjects() {
       0
     );
 
-    let currentTime = startHour * 60 + startMinute;
+    const maxP =
+      sortedSubjects.length > 0
+        ? Math.max(...sortedSubjects.map((s) => Number(s.priority)))
+        : 0;
 
-    let y = 40;
+    // ---------- Build a flat list of pomodoro blocks ----------
+    // Each subject's priority-weighted minutes is split into as many
+    // full work+break cycles as fit, rounding to at least 1 pomodoro.
+    const blocks = [];
+    let cursor = startHour * 60 + startMinute;
 
     sortedSubjects.forEach((subject) => {
       const allocatedMinutes = Math.max(
-        30,
+        work,
         Math.floor((subject.priority / totalPriority) * totalMinutes)
       );
 
-      const startH = Math.floor(currentTime / 60);
+      const cycleLength = work + rest;
+      const pomodoroCount = Math.max(1, Math.round(allocatedMinutes / cycleLength));
+      const tierName = getTierName(Number(subject.priority), maxP);
 
-      const startM = currentTime % 60;
+      for (let i = 0; i < pomodoroCount; i++) {
+        blocks.push({
+          type: "work",
+          subjectName: subject.name,
+          difficulty: subject.difficulty,
+          proficiency: subject.proficiency,
+          tierName,
+          pomodoroIndex: i + 1,
+          pomodoroTotal: pomodoroCount,
+          start: cursor,
+          end: cursor + work,
+        });
+        cursor += work;
 
-      const endTimeMinutes = currentTime + allocatedMinutes;
-
-      const endH = Math.floor(endTimeMinutes / 60);
-
-      const endM = endTimeMinutes % 60;
-
-      const startLabel = `${String(startH).padStart(2, "0")}:${String(
-        startM
-      ).padStart(2, "0")}`;
-
-      const endLabel = `${String(endH).padStart(2, "0")}:${String(
-        endM
-      ).padStart(2, "0")}`;
-
-      doc.text(`${startLabel} - ${endLabel}`, 20, y);
-
-      doc.text(subject.name, 70, y);
-
-      y += 12;
-
-      currentTime = endTimeMinutes;
-
-      if (y > 260) {
-        doc.addPage();
-        y = 20;
+        if (rest > 0) {
+          blocks.push({
+            type: "break",
+            start: cursor,
+            end: cursor + rest,
+          });
+          cursor += rest;
+        }
       }
     });
+
+    const fmt = (mins) => {
+      const h = Math.floor(mins / 60) % 24;
+      const m = mins % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    };
+
+    // ---------- Header band ----------
+    doc.setFillColor(...INK);
+    doc.rect(0, 0, pageWidth, 42, "F");
+
+    doc.setTextColor(...PAPER);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("Snippa Pomodoro Timetable", marginX, 20);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(255, 184, 0); // sun accent
+    const dateStr = new Date().toLocaleDateString(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
+    doc.text(
+      `${dateStr}   |   ${startTime} - ${endTime}   |   ${work} min work / ${rest} min break`,
+      marginX,
+      30
+    );
+
+    // ---------- Table setup ----------
+    let y = 56;
+    const workRowHeight = 18;
+    const breakRowHeight = 10;
+    const colTime = marginX;
+    const colTimeW = 38;
+    const colBar = colTime + colTimeW + 4;
+    const colBarW = 5;
+    const colSubject = colBar + colBarW + 6;
+    const colTagX = pageWidth - marginX - 30;
+
+    // Column headers
+    doc.setTextColor(...INK);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text("TIME", colTime, y);
+    doc.text("FOCUS BLOCK", colSubject, y);
+    doc.text("PRIORITY", colTagX, y);
+    y += 6;
+    doc.setDrawColor(220, 215, 205);
+    doc.line(marginX, y, pageWidth - marginX, y);
+    y += 10;
+
+    blocks.forEach((block, index) => {
+      const rowHeight = block.type === "work" ? workRowHeight : breakRowHeight;
+
+      // Page break check
+      if (y + rowHeight > pageHeight - 24) {
+        doc.addPage();
+        y = 24;
+      }
+
+      const startLabel = fmt(block.start);
+      const endLabel = fmt(block.end);
+
+      if (block.type === "break") {
+        // Slim grey break row
+        doc.setFillColor(245, 242, 235);
+        doc.rect(marginX - 4, y - 8, pageWidth - (marginX - 4) * 2, rowHeight, "F");
+
+        doc.setFont("courier", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(...BREAK_GREY);
+        doc.text(`${startLabel}-${endLabel}`, colTime, y - 1);
+
+        // Small drawn "pause" icon (two vertical bars) instead of an emoji glyph
+        const iconX = colSubject;
+        const iconY = y - 5;
+        doc.setFillColor(...BREAK_GREY);
+        doc.rect(iconX, iconY - 3, 1.6, 6, "F");
+        doc.rect(iconX + 3.5, iconY - 3, 1.6, 6, "F");
+
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(9);
+        doc.setTextColor(...BREAK_GREY);
+        doc.text("BREAK  -  stretch, hydrate, look away from the screen", iconX + 9, y - 1);
+
+        y += rowHeight;
+        return;
+      }
+
+      const tierColor = TIER_RGB[block.tierName];
+
+      // Zebra striping for work rows
+      doc.setFillColor(250, 246, 238);
+      doc.rect(marginX - 4, y - 11, pageWidth - (marginX - 4) * 2, rowHeight, "F");
+
+      // Tier color bar
+      doc.setFillColor(...tierColor);
+      doc.roundedRect(colBar, y - 10, colBarW, rowHeight - 4, 1.5, 1.5, "F");
+
+      // Time range
+      doc.setTextColor(...INK);
+      doc.setFont("courier", "bold");
+      doc.setFontSize(10);
+      doc.text(`${startLabel}`, colTime, y - 3);
+      doc.setFont("courier", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(120, 116, 108);
+      doc.text(`${endLabel}`, colTime, y + 4);
+
+      // Small drawn dot marker instead of an emoji glyph, colored by tier
+      doc.setFillColor(...tierColor);
+      doc.circle(colSubject + 1.5, y - 3.5, 1.6, "F");
+
+      // Subject name + pomodoro counter
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(...INK);
+      doc.text(
+        `${block.subjectName}  (${block.pomodoroIndex}/${block.pomodoroTotal})`,
+        colSubject + 6,
+        y - 1
+      );
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(120, 116, 108);
+      doc.text(
+        `Difficulty ${block.difficulty}  |  Knowledge ${block.proficiency}%  |  ${work} min focus block`,
+        colSubject + 6,
+        y + 5
+      );
+
+      // Priority tag (rounded pill)
+      const tagW = 26;
+      doc.setFillColor(...tierColor);
+      doc.roundedRect(colTagX, y - 8, tagW, 11, 5, 5, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      doc.text(block.tierName, colTagX + tagW / 2, y - 1, { align: "center" });
+
+      y += rowHeight;
+    });
+
+    // ---------- Footer ----------
+    const workBlockCount = blocks.filter((b) => b.type === "work").length;
+    const footerY = pageHeight - 14;
+    doc.setDrawColor(220, 215, 205);
+    doc.line(marginX, footerY - 8, pageWidth - marginX, footerY - 8);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(150, 145, 135);
+    doc.text("Generated by Snippa - study smarter, not harder", marginX, footerY);
+    doc.text(
+      `${workBlockCount} pomodoros   |   ${sortedSubjects.length} subjects`,
+      pageWidth - marginX,
+      footerY,
+      { align: "right" }
+    );
 
     doc.save("StudyTimetable.pdf");
   };
@@ -222,6 +409,10 @@ function Subjects() {
   const [startTime, setStartTime] = useState("09:00");
 
   const [endTime, setEndTime] = useState("18:00");
+
+  const [workMinutes, setWorkMinutes] = useState(25);
+  const [breakMinutes, setBreakMinutes] = useState(5);
+
   const totalSubjects = subjects.length;
 
   const highestPrioritySubject =
@@ -347,7 +538,10 @@ function Subjects() {
 
           {/* Timetable generator */}
           <div className="card card-pad" style={{ marginBottom: "28px" }}>
-            <h2 style={{ fontSize: "19px", marginBottom: "16px" }}>📅 Generate study timetable</h2>
+            <h2 style={{ fontSize: "19px", marginBottom: "16px" }}>🍅 Generate Pomodoro timetable</h2>
+            <p className="muted" style={{ fontSize: "13px", marginTop: "-8px", marginBottom: "16px" }}>
+              Your time gets split into focus blocks and breaks, weighted by subject priority.
+            </p>
 
             <div
               style={{
@@ -376,10 +570,34 @@ function Subjects() {
                   className="input"
                 />
               </div>
+
+              <div>
+                <label className="field-label">Focus length (min)</label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="25"
+                  value={workMinutes}
+                  onChange={(e) => setWorkMinutes(e.target.value)}
+                  className="input"
+                />
+              </div>
+
+              <div>
+                <label className="field-label">Break length (min)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="5"
+                  value={breakMinutes}
+                  onChange={(e) => setBreakMinutes(e.target.value)}
+                  className="input"
+                />
+              </div>
             </div>
 
             <button onClick={exportPDF} className="btn btn-mint">
-              Generate &amp; download PDF
+              Generate &amp; download Pomodoro timetable
             </button>
           </div>
 
