@@ -717,6 +717,27 @@ function Subjects() {
               </div>
             </div>
           </div>
+
+          {/* TODO: placeholder buttons — swap href/onClick for real destinations later */}
+          <div className="flex-row gap-12" style={{ flexWrap: "wrap", marginBottom: "20px" }}>
+            <a
+              href="https://www.youtube.com/shorts/NaOU8JZrjjg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-violet"
+            >
+              Motivate Yourself
+            </a>
+
+            <a
+              href="https://www.linkedin.com/in/harish-anandh-82733a79/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sun"
+            >
+              About Creator
+            </a>
+          </div>
         </div>
       </div>
     </>
